@@ -30,6 +30,12 @@ WiFiUDP udp;
 // ── LED DE PAREAMENTO ─────────────────────────────────────────
 #define LED_PIN 2
 
+// ── CALIBRAÇÃO DVS ────────────────────────────────────
+// Ajuste fino: valor teórico é 200.0, mas o giroscópio real
+// precisa de compensação. Aumente se Serato marcar < 33⅓,
+// diminua se marcar > 33⅓.
+#define DPS_AT_33RPM   193.2f
+
 // ── ÁUDIO I2S ─────────────────────────────────────────
 #define SAMPLE_RATE    44100
 #define CARRIER_FREQ   1000.0f
@@ -114,8 +120,8 @@ void loop() {
             if (fabsf(dps) < 1.0f) {
                 phaseInc = 0.0f;
             } else {
-                // 200 DPS (33⅓ RPM) → 1000 Hz. Se for negativo (-200 DPS), a freq fica -1000 Hz.
-                float freq = (dps / 200.0f) * CARRIER_FREQ;
+                // DPS_AT_33RPM → 1000 Hz. Calibrado para 33⅓ RPM real.
+                float freq = (dps / DPS_AT_33RPM) * CARRIER_FREQ;
                 phaseInc = (freq * (float)LUT_SIZE) / (float)SAMPLE_RATE;
             }
             lastPktMs = millis();
