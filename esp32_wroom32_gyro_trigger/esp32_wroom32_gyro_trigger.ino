@@ -27,7 +27,7 @@ WiFiUDP udp;
 #define MPU6050_PWR_MGMT_1 0x6B
 #define GYRO_SCALE 131.0f 
 #define PHASE_TICKS_PER_TURN 1000000 
-#define GYRO_FILTER_ALPHA 0.80f // Antes 0.10, agindo como anti-latência / resposta instantânea
+#define GYRO_FILTER_ALPHA 1.0f // 1.0f = Sem Filtro de Software. Movimento Instantâneo.
 #define MOTION_START_DPS 8.0f
 #define MOTION_STOP_DPS 3.5f
 
@@ -70,6 +70,8 @@ void setup() {
 
   Serial.printf("Conectando ao WiFi: %s\n", ssid);
   WiFi.begin(ssid, password);
+  // DESLIGA O SLEEP DA ANTENA (MODO ANTI-LATÊNCIA ABSOLUTO)
+  WiFi.setSleep(false);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500); Serial.print(".");
   }
@@ -79,7 +81,7 @@ void setup() {
 void loop() {
   unsigned long now = millis();
   unsigned long deltaMs = now - lastMs;
-  if (deltaMs < 2) return; // 500Hz de taxa (Fogo sem latência!)
+  if (deltaMs < 10) return; // 100Hz é mais do que perfeito e NAO ENGASGA a rede.
   lastMs = now;
 
   // Escudo I2C: So le se o sensor estiver respondendo
