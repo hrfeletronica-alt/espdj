@@ -67,6 +67,9 @@ void setup() {
 
     // WiFi Access-Point
     WiFi.softAP(AP_SSID, AP_PASS);
+    // DESLIGA O SLEEP DA ANTENA (MODO ANTI-LATÊNCIA ABSOLUTO)
+    WiFi.setSleep(false);
+    
     udp.begin(UDP_PORT);
 
     Serial.printf("DVS I2S Ready | AP: %s | IP: %s | SR: %d\n",
