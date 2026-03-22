@@ -24,6 +24,9 @@ WiFiUDP udp;
 // Diga quem é você: 1 para o primeiro disco, 2 para o segundo disco!
 #define TRANSMITTER_ID 1
 
+// --- LED DE PAREAMENTO ---
+#define LED_PIN 2
+
 // --- MPU6050 & LÓGICA ---
 #define MPU6050_ADDRESS 0x68
 #define MPU6050_GYRO_Z_OUT_H 0x47
@@ -71,13 +74,19 @@ void setup() {
   }
   gyroZOffsetDps = sum / 100.0f;
 
+  pinMode(LED_PIN, OUTPUT);
   Serial.printf("Conectando ao WiFi: %s\n", ssid);
   WiFi.begin(ssid, password);
   // DESLIGA O SLEEP DA ANTENA (MODO ANTI-LATÊNCIA ABSOLUTO)
   WiFi.setSleep(false);
+  
+  bool ledState = false;
   while (WiFi.status() != WL_CONNECTED) {
+    ledState = !ledState;
+    digitalWrite(LED_PIN, ledState);
     delay(500); Serial.print(".");
   }
+  digitalWrite(LED_PIN, HIGH); // Ligado fixo quando conectado
   Serial.println("\nWiFi OK! MPU6050 Ativo e Protegido.");
 }
 

@@ -27,6 +27,9 @@ struct MotionMessage {
 
 WiFiUDP udp;
 
+// ── LED DE PAREAMENTO ─────────────────────────────────────────
+#define LED_PIN 2
+
 // ── ÁUDIO I2S ─────────────────────────────────────────
 #define SAMPLE_RATE    44100
 #define CARRIER_FREQ   1000.0f
@@ -46,6 +49,9 @@ unsigned long lastPktMs = 0;
 // ── SETUP ─────────────────────────────────────────────
 void setup() {
     Serial.begin(115200);
+
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
 
     // Gera Seno LUT
     for (int i = 0; i < LUT_SIZE; i++) {
@@ -116,8 +122,16 @@ void loop() {
         }
     }
 
-    // Timeout de link
-    if (millis() - lastPktMs > 200) phaseInc = 0.0f;
+    // Timeout de link / LED de Pareamento
+    bool linkActive = (millis() - lastPktMs) <= 200;
+    if (!linkActive) {
+        phaseInc = 0.0f;
+        // Sem sinal: pisca o LED a cada 500ms
+        digitalWrite(LED_PIN, (millis() / 500) % 2 == 0 ? HIGH : LOW);
+    } else {
+        // Com sinal: LED estático (ligado)
+        digitalWrite(LED_PIN, HIGH);
+    }
 
     // ── 2. Preenche buffer DMA ───────────────────────
     float inc = phaseInc;
